@@ -2,7 +2,6 @@
 import pygame
 from board import ChessBoard
 from UserInterface import UserInterface
-import chess
 import socket
 
 global time
@@ -18,6 +17,9 @@ socketObject = socket.socket()
 
 socketObject.connect(("localhost",9999))
 
+# Initialize game mode
+game_mode = "player_vs_player"  # Default mode
+
 # Send a message to the web server to supply a page as given by Host param of GET request
 
 while (True):
@@ -28,30 +30,37 @@ while (True):
     print(data)
 
     if data.startswith("Time"):
-        time = int(data[4:]) * 60
+        time = int(data[4:]) * 60 # Convert minutes to seconds
         msg = "OK"
         msg = msg.encode()
         socketObject.send(msg)
-
+# Setup Wb4 Wa3 Wc2 Bg7 Wd4 Bg6 Be7
     elif data.startswith("Setup"):
-
-        pawn_num = 4
+        time = 900
+        pygame.init()  # initialize pygame
+        surface = pygame.display.set_mode([600, 600], 0, 0)
+        pygame.display.set_caption('Pawn Game')
+        Board = ChessBoard()
+        UI = UserInterface(surface, Board)
+        pawn_num = 0
         UI.firstgame = False
         for i in range(64):
             UI.chessboard.boardArray[i // 8][i % 8] = " "
         for i in range(6, len(data) - 8, 4):
-            if color == 'W':
-                if data[i] == color:
-                    UI.chessboard.boardArray[8 - int(data[i+2])][ord(data[i + 1]) - 65] = "P"
-                    pawn_num = pawn_num + 1
+            piece_color = data[i].strip()
+            piece_position = data[i+1:i+3].strip()
+            row =  int(piece_position[1]) - 1
+            col = ord(piece_position[0]) - 97
+            # Debugging statements
+            print(f"Piece: {piece_color}, Position: {piece_position}, Row: {row}, Col: {col}")
+            if 0 <= row < 8 and 0 <= col < 8:
+                if piece_color == 'W':
+                    UI.chessboard.boardArray[row][col] = "wp"
                 else:
-                    UI.chessboard.boardArray[8 - int(data[i + 2])][ord(data[i + 1]) - 65] = "p"
+                    UI.chessboard.boardArray[row][col] = "bp"
+                pawn_num += 1
             else:
-                if data[i] == color:
-                    UI.chessboard.boardArray[int(data[i+2]) - 1][ord(data[i + 1]) - 65] = "P"
-                    pawn_num = pawn_num + 1
-                else:
-                    UI.chessboard.boardArray[int(data[i + 2]) - 1][ord(data[i + 1]) - 65] = "p"
+                print(f"Invalid position: {piece_position}")
         UI.chessboard.round = int(time/pawn_num)
         UI.drawComponent()
 
@@ -69,20 +78,27 @@ while (True):
         break
 
     elif data == "Your turn":
-        data, flag = UI.clientMove()# flag = -1 lose, flag = 1 win
-        if flag == -1:
-            msg = "Win"
-        elif flag == 1:
-            msg = "Lost"
-        else:
-            move = ""
-            move += str(chr(97 + int(data[1])))
-            move += str(8 - int(data[0]))
-            move += str(chr(97 + int(data[3])))
-            move += str(8 - int(data[2]))
-            msg = move
-        msg = msg.encode()
-        socketObject.send(msg)
+        if game_mode == "player_vs_player":
+            data, flag = UI.clientMove()  # flag = -1 lose, flag = 1 win
+            if flag == -1:
+                msg = "Win"
+            elif flag == 1:
+                msg = "Lost"
+            else:
+                move = ""
+                move += str(chr(97 + int(data[1])))
+                move += str(8 - int(data[0]))
+                move += str(chr(97 + int(data[3])))
+                move += str(8 - int(data[2]))
+                msg = move
+            msg = msg.encode()
+            socketObject.send(msg)
+        elif game_mode == "player_vs_agent":
+            # Implement player vs agent logic
+            pass
+        elif game_mode == "agent_vs_agent":
+            # Implement agent vs agent logic
+            pass
 
     elif data == "Begin":
         pygame.init()  # initialize pygame

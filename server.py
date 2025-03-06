@@ -60,6 +60,14 @@ while (True):
     clients[0].send(time)
     clients[1].send(time)
 
+  
+
+    # Classic for normal board, SETUP (ends with either BLACK/WHITE) otherwise
+    msg = input()
+    msg = str.encode(msg)
+    clients[0].send(msg)
+    clients[1].send(msg)
+
     # send Begin to clients
     msg = input()
     msg = str.encode(msg)
@@ -69,12 +77,6 @@ while (True):
     msg = str.encode("White")
     clients[0].send(msg)
     msg = str.encode("Black")
-    clients[1].send(msg)
-
-    # Classic for normal board, SETUP (ends with either BLACK/WHITE) otherwise
-    msg = input()
-    msg = str.encode(msg)
-    clients[0].send(msg)
     clients[1].send(msg)
 
     msg = msg.decode()
