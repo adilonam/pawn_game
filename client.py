@@ -19,10 +19,12 @@ socketObject.connect(("localhost",9999))
 
 # Initialize game mode
 game_mode = "player_vs_player"  # Default mode
-
+pygame.init()  # initialize pygame
 # Send a message to the web server to supply a page as given by Host param of GET request
 
 while (True):
+    
+    
 
     data = socketObject.recv(1024)
     data = data.decode()
@@ -37,7 +39,7 @@ while (True):
 # Setup Wb4 Wa3 Wc2 Bg7 Wd4 Bg6 Be7
     elif data.startswith("Setup"):
         time = 900
-        pygame.init()  # initialize pygame
+        
         surface = pygame.display.set_mode([600, 600], 0, 0)
         pygame.display.set_caption('Pawn Game')
         Board = ChessBoard()
@@ -46,13 +48,12 @@ while (True):
         UI.firstgame = False
         for i in range(64):
             UI.chessboard.boardArray[i // 8][i % 8] = " "
-        for i in range(6, len(data) - 8, 4):
+        for i in range(6, len(data) , 4):
             piece_color = data[i].strip()
             piece_position = data[i+1:i+3].strip()
-            row =  int(piece_position[1]) - 1
+            row = 8 - int(piece_position[1]) 
             col = ord(piece_position[0]) - 97
             # Debugging statements
-            print(f"Piece: {piece_color}, Position: {piece_position}, Row: {row}, Col: {col}")
             if 0 <= row < 8 and 0 <= col < 8:
                 if piece_color == 'W':
                     UI.chessboard.boardArray[row][col] = "wp"
@@ -63,13 +64,21 @@ while (True):
                 print(f"Invalid position: {piece_position}")
         UI.chessboard.round = int(time/pawn_num)
         UI.drawComponent()
-
+        while True:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    socketObject.close()
+                    exit()
+                UI.handle_event(event)
 
     elif data == "White":
+        print("Player is White")
         color = "W"
         UI.playerColor = color
 
     elif data == "Black":
+        print("Player is Black")
         color = "B"
         UI.playerColor = color
 
