@@ -11,11 +11,11 @@ class UserInterface:
         self.selected_piece = None
         self.selected_pos = None
 
-        light_square_color = (240, 217, 181)  # Beige
-        dark_square_color = (181, 136, 99)    # Brown
+        self.light_square_color = (240, 217, 181)  # Beige
+        self.dark_square_color = (181, 136, 99)    # Brown
         
-        label_gap = self.surface.get_width() * 20 // 600
-        square_len = (self.surface.get_width() - 2 * label_gap) // 8
+        self.label_gap = self.surface.get_width() * 20 // 600
+        self.square_len = (self.surface.get_width() - 2 * self.label_gap) // 8
 
     def load_images(self):
         self.images = {
@@ -63,4 +63,4 @@ class UserInterface:
     def clientMove(self):
         # Handle player move input
         # Return the move and flag indicating win/lose status
-        pass
+        raise NotImplementedError

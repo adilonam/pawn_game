@@ -3,11 +3,10 @@ import pygame
 from board import ChessBoard
 from UserInterface import UserInterface
 import socket
+import threading  # Import threading module
 
-global time
-global color
-global surface
-global UI
+
+
 
 # Create a socket instance
 
@@ -15,17 +14,22 @@ socketObject = socket.socket()
 
 # Using the socket connect to a server...in this case localhost
 
-socketObject.connect(("localhost",9999))
+socketObject.connect(("localhost",9991))
 
 # Initialize game mode
 game_mode = "player_vs_player"  # Default mode
 pygame.init()  # initialize pygame
 # Send a message to the web server to supply a page as given by Host param of GET request
 
-while (True):
-    
-    
+running = True  # Initialize the running flag
 
+
+
+
+
+while (running):
+    if socketObject._closed:
+        break
     data = socketObject.recv(1024)
     data = data.decode()
 
@@ -38,7 +42,6 @@ while (True):
         socketObject.send(msg)
 # Setup Wb4 Wa3 Wc2 Bg7 Wd4 Bg6 Be7
     elif data.startswith("Setup"):
-        time = 900
         
         surface = pygame.display.set_mode([600, 600], 0, 0)
         pygame.display.set_caption('Pawn Game')
@@ -46,6 +49,7 @@ while (True):
         UI = UserInterface(surface, Board)
         pawn_num = 0
         UI.firstgame = False
+        UI.time = time
         for i in range(64):
             UI.chessboard.boardArray[i // 8][i % 8] = " "
         for i in range(6, len(data) , 4):
@@ -64,13 +68,10 @@ while (True):
                 print(f"Invalid position: {piece_position}")
         UI.chessboard.round = int(time/pawn_num)
         UI.drawComponent()
-        while True:
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    pygame.quit()
-                    socketObject.close()
-                    exit()
-                UI.handle_event(event)
+        
+
+    elif data == "Begin":
+        print("Game started")
 
     elif data == "White":
         print("Player is White")
@@ -82,9 +83,7 @@ while (True):
         color = "B"
         UI.playerColor = color
 
-    elif data == "exit":
-        print("Connection closed")
-        break
+    
 
     elif data == "Your turn":
         if game_mode == "player_vs_player":
@@ -94,12 +93,15 @@ while (True):
             elif flag == 1:
                 msg = "Lost"
             else:
-                move = ""
-                move += str(chr(97 + int(data[1])))
-                move += str(8 - int(data[0]))
-                move += str(chr(97 + int(data[3])))
-                move += str(8 - int(data[2]))
-                msg = move
+                is_your_turn = True
+                while is_your_turn:
+                    for event in pygame.event.get():
+                        if event.type == pygame.QUIT:
+                            pygame.quit()
+                            is_your_turn = False
+                            break
+                        UI.handle_event(event)
+                msg = "move"
             msg = msg.encode()
             socketObject.send(msg)
         elif game_mode == "player_vs_agent":
@@ -109,14 +111,8 @@ while (True):
             # Implement agent vs agent logic
             pass
 
-    elif data == "Begin":
-        pygame.init()  # initialize pygame
-        surface = pygame.display.set_mode([600, 600], 0, 0)
-        pygame.display.set_caption('Pawn Game')
-        Board = ChessBoard()
-        UI = UserInterface(surface, Board)
-        UI.time = time
-        UI.chessboard.round = int(time/14)
+    
+        
 
     elif data == "Classic":
         UI.drawComponent()
@@ -129,6 +125,11 @@ while (True):
         msg = msg.encode()
         socketObject.send(msg)
 
+
+    elif data == "exit":
+        print("Connection closed")
+        running = False
+        break
 
     #enemy move
     else:
@@ -146,4 +147,7 @@ while (True):
         UI.drawComponent()
 
 
+
+pygame.quit()
 socketObject.close()
+exit()
