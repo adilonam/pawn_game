@@ -64,7 +64,11 @@ class ChessBoard:
         for row in range(8):
             for col in range(8):
                 if (color == "W" and board[row][col] == "W") or (color == "B" and board[row][col] == "B"):
-                    for d_row, d_col in [(-1, 0), (-2, 0), (-1, -1), (-1, 1)]:
+                    if color == "W":
+                        directions = [(-1, 0), (-2, 0), (-1, -1), (-1, 1)]
+                    else:
+                        directions = [(1, 0), (2, 0), (1, -1), (1, 1)]
+                    for d_row, d_col in directions:
                         new_row, new_col = row + d_row, col + d_col
                         if 0 <= new_row < 8 and 0 <= new_col < 8:
                             move = f"{chr(col + 97)}{8 - row}{chr(new_col + 97)}{8 - new_row}"
@@ -140,7 +144,11 @@ class MCTS:
         for row in range(8):
             for col in range(8):
                 if (color == "W" and board[row][col] == "W") or (color == "B" and board[row][col] == "B"):
-                    for d_row, d_col in [(-1, 0), (-2, 0), (-1, -1), (-1, 1)]:
+                    if color == "W":
+                        directions = [(-1, 0), (-2, 0), (-1, -1), (-1, 1)]
+                    else:
+                        directions = [(1, 0), (2, 0), (1, -1), (1, 1)]
+                    for d_row, d_col in directions:
                         new_row, new_col = row + d_row, col + d_col
                         if 0 <= new_row < 8 and 0 <= new_col < 8:
                             move = f"{chr(col + 97)}{8 - row}{chr(new_col + 97)}{8 - new_row}"
