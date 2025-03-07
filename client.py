@@ -8,7 +8,7 @@ import time as time_module
 
 
 
-port = int(sys.argv[1]) if len(sys.argv) > 1 else 9996
+port = int(sys.argv[1]) if len(sys.argv) > 1 else 9999
 game_mode = "player_vs_player"  # Default mode
 
 def run_client():
@@ -38,7 +38,6 @@ def run_client():
                 print(f"Time: {time}")
             # Setup Wb4 Wa3 Wc2 Bg7 Wd4 Bg6 Be7
             elif data.startswith("Setup"):
-                time = 300
                 surface = pygame.display.set_mode([600, 600], 0, 0)
                 pygame.display.set_caption('Pawn Game')
                 Board = ChessBoard()

@@ -106,7 +106,7 @@ class UserInterface:
                     break
                 is_moved, movement = self.handle_event(event)
                 
-                elapsed_time = time_module.time() - self.start_time
+                elapsed_time = time_module.time() - self.start_time                
                 remaining_time = max(0, self.chessboard.round_time - int(elapsed_time))
                 timer_label = font.render(f'Time left: {remaining_time}s', True, (0, 0, 0))
                 

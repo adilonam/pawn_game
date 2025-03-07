@@ -15,7 +15,7 @@ print("Server socket created")
 ip = "127.0.0.1"
 
 # Read port from command-line arguments
-port = int(sys.argv[1]) if len(sys.argv) > 1 else 9992
+port = int(sys.argv[1]) if len(sys.argv) > 1 else 9999
 serverSocket.bind((ip, port))
 
 print("Server socket bound with with ip {} port {}".format(ip, port))
@@ -53,7 +53,11 @@ try:
     msg = str.encode("Connected to the server")
     clients[0].send(msg)
     clients[1].send(msg)
-
+    # send Time x to clients
+    time = input()
+    time = str.encode(time)
+    clients[0].send(time)
+    clients[1].send(time)
     
 
     # Classic for normal board, SETUP (ends with either BLACK/WHITE) otherwise
@@ -85,7 +89,7 @@ try:
         msg = str.encode("Your turn")
         clients[player_index].send(msg)
         data = clients[player_index].recv(1024)
-        print(f"Data received from client: {player_index} is {data}")
+        print(f"Data received from client: {player_index} is {data.decode()}")
         if (data != b''):
             data = data.decode()
             if data == "exit":
