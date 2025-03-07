@@ -1,5 +1,5 @@
 Time 600
-Setup Wd4 Be7
+Setup Wb4 Wa3 Wc2 Bg7 Wd4 Bg6 Be7
 Begin
 
 

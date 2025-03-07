@@ -87,6 +87,7 @@ class UserInterface:
         return None
 
     def clientMove(self):
+        print("Best move :" , self.chessboard.ai_move(self.playerColor)) 
         is_moved = False
         while not is_moved:
             for event in pygame.event.get():
