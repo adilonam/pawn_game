@@ -9,7 +9,7 @@ import time as time_module
 
 
 port = int(sys.argv[1]) if len(sys.argv) > 1 else 9996
-
+game_mode = "player_vs_player"  # Default mode
 
 def run_client():
     # Create a socket instance
@@ -19,7 +19,7 @@ def run_client():
     socketObject.connect(("localhost", port))
 
     # Initialize game mode
-    game_mode = "player_vs_player"  # player_vs_agent, agent_vs_agent , player_vs_player
+    
     pygame.init()  # initialize pygame
 
     running = True  # Initialize the running flag
@@ -38,11 +38,12 @@ def run_client():
                 print(f"Time: {time}")
             # Setup Wb4 Wa3 Wc2 Bg7 Wd4 Bg6 Be7
             elif data.startswith("Setup"):
-                time = 600
+                time = 300
                 surface = pygame.display.set_mode([600, 600], 0, 0)
                 pygame.display.set_caption('Pawn Game')
                 Board = ChessBoard()
                 UI = UserInterface(surface, Board)
+                UI.game_mode = game_mode
                 UI.socketObject = socketObject
                 pawn_num = 0
                 UI.firstgame = False
@@ -85,7 +86,7 @@ def run_client():
                 UI.drawComponent()
 
             elif data == "Your turn":
-                if game_mode == "player_vs_player":
+                if UI.game_mode == "player_vs_player":
                     UI.drawComponent()
                     movement,flag  = UI.clientMove()
                     if flag == "W" or flag == "B":
@@ -94,7 +95,7 @@ def run_client():
                         msg = f"Move {movement} {UI.playerColor}"
                     msg = msg.encode()
                     socketObject.send(msg)
-                elif game_mode == "player_vs_agent":
+                elif UI.game_mode == "player_vs_agent":
                     UI.drawComponent()
                     if UI.playerColor == "W":
                         movement,flag  = UI.clientMove()
@@ -113,7 +114,7 @@ def run_client():
                         msg = f"Move {movement} {UI.playerColor}"
                     msg = msg.encode()
                     socketObject.send(msg)
-                elif game_mode == "agent_vs_agent":
+                elif UI.game_mode == "agent_vs_agent":
                     time_module.sleep(1)
                     UI.drawComponent() 
                     movement = UI.chessboard.ai_move(UI.playerColor)

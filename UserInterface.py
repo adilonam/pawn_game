@@ -10,13 +10,14 @@ class UserInterface:
         self.load_images()
         self.selected_piece = None
         self.selected_pos = None
-
+        self.game_mode = "player_vs_player"
         self.socketObject = None
         self.light_square_color = (240, 217, 181)  # Beige
         self.dark_square_color = (181, 136, 99)    # Brown
         
         self.label_gap = self.surface.get_width() * 20 // 600
         self.square_len = (self.surface.get_width() - 2 * self.label_gap) // 8
+        self.start_time = time_module.time()
 
     def load_images(self):
         self.images = {
@@ -44,6 +45,8 @@ class UserInterface:
                 if row == 7:
                     col_label = font.render(chr(97 + col), True, (0, 0, 0))
                     self.surface.blit(col_label, (self.label_gap + col * self.square_len + self.square_len // 2, self.surface.get_height() - self.label_gap))
+        # Draw the countdown timer
+        
         pygame.display.flip()
 
     def handle_event(self, event):
@@ -92,6 +95,8 @@ class UserInterface:
         return None
 
     def clientMove(self):
+        font = pygame.font.SysFont(None, 24)
+        self.start_time = time_module.time()  # Reset the timer to self.round_time
         is_moved = False
         while not is_moved:
             for event in pygame.event.get():
@@ -100,5 +105,18 @@ class UserInterface:
                     self.socketObject.close()
                     break
                 is_moved, movement = self.handle_event(event)
+                
+                elapsed_time = time_module.time() - self.start_time
+                remaining_time = max(0, self.chessboard.round_time - int(elapsed_time))
+                timer_label = font.render(f'Time left: {remaining_time}s', True, (0, 0, 0))
+                
+                # Clear the previous timer label by redrawing the background rectangle
+                timer_rect = pygame.Rect(self.surface.get_width() - 150, 10, 140, 30)
+                pygame.draw.rect(self.surface, self.dark_square_color, timer_rect)
+                
+                self.surface.blit(timer_label, (self.surface.get_width() - 150, 10))
+                pygame.display.flip()
+                if remaining_time == 0:
+                    return "", "B" if self.playerColor == "W" else "W"
         flag = self.check_win_loss()
-        return movement,flag
+        return movement, flag
