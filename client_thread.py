@@ -19,7 +19,7 @@ def run_client():
     socketObject.connect(("localhost", port))
 
     # Initialize game mode
-    game_mode = "player_vs_player"  # Default mode
+    game_mode = "player_vs_player"  # player_vs_agent, agent_vs_agent , player_vs_player
     pygame.init()  # initialize pygame
 
     running = True  # Initialize the running flag
@@ -81,7 +81,7 @@ def run_client():
 
             elif data.startswith("Move"):
                 move = data.split(" ")[1]
-                UI.chessboard.changePerspective(move, 1)
+                UI.chessboard.changePerspective(move)
                 UI.drawComponent()
 
             elif data == "Your turn":
@@ -95,11 +95,41 @@ def run_client():
                     msg = msg.encode()
                     socketObject.send(msg)
                 elif game_mode == "player_vs_agent":
-                    # Implement player vs agent logic
-                    pass
+                    UI.drawComponent()
+                    if UI.playerColor == "W":
+                        movement,flag  = UI.clientMove()
+                    else:   
+                        movement = UI.chessboard.ai_move(UI.playerColor)
+                        print(f"AI move: {movement} color {UI.playerColor}")
+                        if movement is None:
+                            flag = "W"
+                        else:
+                            UI.chessboard.changePerspective(movement)
+                            UI.drawComponent()
+                            flag = UI.check_win_loss()
+                    if flag == "W" or flag == "B":
+                        msg = f"Win {flag}"
+                    else:
+                        msg = f"Move {movement} {UI.playerColor}"
+                    msg = msg.encode()
+                    socketObject.send(msg)
                 elif game_mode == "agent_vs_agent":
-                    # Implement agent vs agent logic
-                    pass
+                    time_module.sleep(1)
+                    UI.drawComponent() 
+                    movement = UI.chessboard.ai_move(UI.playerColor)
+                    print(f"AI move: {movement} color {UI.playerColor}")
+                    if movement is None:
+                        flag = "W" if UI.playerColor == "B" else "B"
+                    else:
+                        UI.chessboard.changePerspective(movement)
+                        UI.drawComponent()
+                        flag = UI.check_win_loss()
+                    if flag == "W" or flag == "B":
+                        msg = f"Win {flag}"
+                    else:
+                        msg = f"Move {movement} {UI.playerColor}"
+                    msg = msg.encode()
+                    socketObject.send(msg)
 
             elif data.startswith("Win"):
                 if data[4:] == "W":

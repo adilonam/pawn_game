@@ -53,6 +53,10 @@ class UserInterface:
             col = (x - self.label_gap) // self.square_len
             row = (y - self.label_gap) // self.square_len
             if 0 <= col < 8 and 0 <= row < 8:
+                if  self.chessboard.boardArray[row][col][0] == self.playerColor:
+                    print(f"Selected piece: {self.chessboard.boardArray[row][col]}")
+                    self.selected_piece = self.chessboard.boardArray[row][col]
+                    self.selected_pos = (row, col)
                 if self.selected_piece:
                     move_from = chr(97 + self.selected_pos[1]) + str(8 - self.selected_pos[0])
                     move_to = chr(97 + col) + str(8 - row)
@@ -66,10 +70,7 @@ class UserInterface:
                     self.chessboard.round += 1
                     self.drawComponent()
                     return True, f"{move_from}{move_to}"
-                elif self.chessboard.boardArray[row][col] != " " and self.chessboard.boardArray[row][col][0] == self.playerColor:
-                    print(f"Selected piece: {self.chessboard.boardArray[row][col]}")
-                    self.selected_piece = self.chessboard.boardArray[row][col]
-                    self.selected_pos = (row, col)
+                
         return False, ""
         
     def check_win_loss(self):
@@ -78,8 +79,12 @@ class UserInterface:
         for i in range(64):
             if self.chessboard.boardArray[i // 8][i % 8] == "W":
                 white_pawn_exists = True
+                if i // 8 == 0:  # White pawn reaches the last row
+                    return 'W'
             elif self.chessboard.boardArray[i // 8][i % 8] == "B":
                 black_pawn_exists = True
+                if i // 8 == 7:  # Black pawn reaches the last row
+                    return 'B'
         if not white_pawn_exists:
             return 'B'
         if not black_pawn_exists:
@@ -87,7 +92,6 @@ class UserInterface:
         return None
 
     def clientMove(self):
-        print("Best move :" , self.chessboard.ai_move(self.playerColor)) 
         is_moved = False
         while not is_moved:
             for event in pygame.event.get():

@@ -33,15 +33,15 @@ class ChessBoard:
         else:
             # Pawn can move one or two squares forward from the starting position
             if playerColor == "B":
-                if (end_row - start_row == 2 and self.round == 0) or end_row - start_row == 1:
-                    return True  # Valid move for white
-            elif playerColor == "W":
-                if (start_row - end_row == 2 and  self.round == 0) or start_row - end_row == 1:
+                if (end_row - start_row == 2 and self.round == 0 and self.boardArray[end_row][end_col] == " ") or (end_row - start_row == 1 and self.boardArray[end_row][end_col] == " "):
                     return True  # Valid move for black
+            elif playerColor == "W":
+                if (start_row - end_row == 2 and self.round == 0 and self.boardArray[end_row][end_col] == " ") or (start_row - end_row == 1 and self.boardArray[end_row][end_col] == " "):
+                    return True  # Valid move for white
         
         return False  # Invalid move
 
-    def changePerspective(self, move, flag):
+    def changePerspective(self, move):
         # Compute the move on the board
         start_col = ord(move[0]) - ord('a')
         start_row = 8 - int(move[1])
@@ -65,9 +65,9 @@ class ChessBoard:
             for col in range(8):
                 if (color == "W" and board[row][col] == "W") or (color == "B" and board[row][col] == "B"):
                     if color == "W":
-                        directions = [(-1, 0), (-2, 0), (-1, -1), (-1, 1)]
+                        directions = [(-1, 0), (-1, 0), (-1, -1), (-1, 1)]
                     else:
-                        directions = [(1, 0), (2, 0), (1, -1), (1, 1)]
+                        directions = [(1, 0), (1, 0), (1, -1), (1, 1)]
                     for d_row, d_col in directions:
                         new_row, new_col = row + d_row, col + d_col
                         if 0 <= new_row < 8 and 0 <= new_col < 8:
