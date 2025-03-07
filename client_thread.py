@@ -1,3 +1,4 @@
+import sys
 import pygame
 from board import ChessBoard
 from UserInterface import UserInterface
@@ -5,12 +6,17 @@ import socket
 import threading
 import time as time_module
 
+
+
+port = int(sys.argv[1]) if len(sys.argv) > 1 else 9996
+
+
 def run_client():
     # Create a socket instance
     socketObject = socket.socket()
 
     # Using the socket connect to a server...in this case localhost
-    socketObject.connect(("localhost", 9991))
+    socketObject.connect(("localhost", port))
 
     # Initialize game mode
     game_mode = "player_vs_player"  # Default mode
@@ -51,13 +57,13 @@ def run_client():
                     # Debugging statements
                     if 0 <= row < 8 and 0 <= col < 8:
                         if piece_color == 'W':
-                            UI.chessboard.boardArray[row][col] = "Wp"
+                            UI.chessboard.boardArray[row][col] = "W"
                         else:
-                            UI.chessboard.boardArray[row][col] = "Bp"
+                            UI.chessboard.boardArray[row][col] = "B"
                         pawn_num += 1
                     else:
                         print(f"Invalid position: {piece_position}")
-                UI.chessboard.round = int(time / pawn_num)
+                UI.chessboard.round_time = int(time / pawn_num)
                 UI.drawComponent()
 
             elif data == "Begin":
@@ -75,17 +81,15 @@ def run_client():
 
             elif data.startswith("Move"):
                 move = data.split(" ")[1]
-                UI.chessboard.computeMove(move, 1)
+                UI.chessboard.changePerspective(move, 1)
                 UI.drawComponent()
 
             elif data == "Your turn":
                 if game_mode == "player_vs_player":
-                    is_moved, movement = UI.clientMove()
-                    data, flag = 100, 100  # flag = -1 lose, flag = 1 win
-                    if flag == -1:
-                        msg = "Win"
-                    elif flag == 1:
-                        msg = "Lost"
+                    UI.drawComponent()
+                    movement,flag  = UI.clientMove()
+                    if flag == "W" or flag == "B":
+                        msg = f"Win {flag}"
                     else:
                         msg = f"Move {movement} {UI.playerColor}"
                     msg = msg.encode()
@@ -97,8 +101,14 @@ def run_client():
                     # Implement agent vs agent logic
                     pass
 
-            elif data == "Classic":
-                UI.drawComponent()
+            elif data.startswith("Win"):
+                if data[4:] == "W":
+                    print("White player won")
+                else:
+                    print("Black player won")
+                msg = str.encode("exit")
+                socketObject.send(msg)
+                break
 
             elif data == "White's turn" or data == "Black's turn":
                 print("ok")
@@ -111,20 +121,7 @@ def run_client():
                 running = False
                 break
 
-            # enemy move
-            elif False:
-                move = ""
-                move += str(8 - int(data[1]))
-                move += str(ord(data[0]) - 97)
-                move += str(8 - int(data[3]))
-                move += str(ord(data[2]) - 97)
-                if int(move[1]) - int(move[3]) == 2 or int(move[1]) - int(move[3]) == -2:
-                    UI.chessboard.enpassant = True
-                    UI.chessboard.enpassantCol = int(move[0])
-                UI.chessboard.changePerspective()
-                UI.chessboard.computeMove(move, 0)
-                UI.chessboard.changePerspective()
-                UI.drawComponent()
+
 
     except Exception as e:
         print(f"An error occurred: {e}")

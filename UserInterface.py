@@ -20,8 +20,8 @@ class UserInterface:
 
     def load_images(self):
         self.images = {
-            "Wp": pygame.image.load("Chess_Images/wp.png"),
-            "Bp": pygame.image.load("Chess_Images/bp.png")
+            "W": pygame.image.load("Chess_Images/wp.png"),
+            "B": pygame.image.load("Chess_Images/bp.png")
         }
 
     def drawComponent(self):
@@ -47,6 +47,7 @@ class UserInterface:
         pygame.display.flip()
 
     def handle_event(self, event):
+        
         if event.type == pygame.MOUSEBUTTONDOWN:
             x, y = event.pos
             col = (x - self.label_gap) // self.square_len
@@ -55,23 +56,38 @@ class UserInterface:
                 if self.selected_piece:
                     move_from = chr(97 + self.selected_pos[1]) + str(8 - self.selected_pos[0])
                     move_to = chr(97 + col) + str(8 - row)
-                    print(f"The pawn moved from {move_from} to {move_to}")
-
+                    move = f"{move_from}{move_to}"
+                    if not self.chessboard.computeMove(move , self.playerColor):
+                        return False, ""
                     self.chessboard.boardArray[self.selected_pos[0]][self.selected_pos[1]] = " "
                     self.chessboard.boardArray[row][col] = self.selected_piece
                     self.selected_piece = None
                     self.selected_pos = None
+                    self.chessboard.round += 1
                     self.drawComponent()
                     return True, f"{move_from}{move_to}"
                 elif self.chessboard.boardArray[row][col] != " " and self.chessboard.boardArray[row][col][0] == self.playerColor:
+                    print(f"Selected piece: {self.chessboard.boardArray[row][col]}")
                     self.selected_piece = self.chessboard.boardArray[row][col]
                     self.selected_pos = (row, col)
         return False, ""
         
+    def check_win_loss(self):
+        white_pawn_exists = False
+        black_pawn_exists = False
+        for i in range(64):
+            if self.chessboard.boardArray[i // 8][i % 8] == "W":
+                white_pawn_exists = True
+            elif self.chessboard.boardArray[i // 8][i % 8] == "B":
+                black_pawn_exists = True
+        if not white_pawn_exists:
+            return 'B'
+        if not black_pawn_exists:
+            return 'W'
+        return None
 
     def clientMove(self):
         is_moved = False
-        
         while not is_moved:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -79,4 +95,5 @@ class UserInterface:
                     self.socketObject.close()
                     break
                 is_moved, movement = self.handle_event(event)
-        return is_moved, movement
+        flag = self.check_win_loss()
+        return movement,flag

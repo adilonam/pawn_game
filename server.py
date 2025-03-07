@@ -1,6 +1,7 @@
 import socket
 import time as time_module
 import signal
+import sys
 
 clients = []
 # Create a server socket
@@ -13,7 +14,8 @@ print("Server socket created")
 
 ip = "127.0.0.1"
 
-port = 9991
+# Read port from command-line arguments
+port = int(sys.argv[1]) if len(sys.argv) > 1 else 9992
 serverSocket.bind((ip, port))
 
 print("Server socket bound with with ip {} port {}".format(ip, port))
@@ -94,25 +96,12 @@ try:
                 print("Connection closed")
                 break
 
-            elif data == "Win":
-                if player_index:
-                    print("Black player won")
-                else:
-                    print("White player won")
-                msg1Bytes = str.encode("exit")
-                clients[0].send(msg1Bytes)
-                clients[1].send(msg1Bytes)
+            elif data.startswith("Win"):
+                print("Win received from client: ", player_index)
+                for client in clients:
+                    client.send(str.encode(data))
                 break
-
-            elif data == "Lost":
-                if player_index:
-                    print("White player lost")
-                else:
-                    print("Black player lost")
-                msg1Bytes = str.encode("exit")
-                clients[0].send(msg1Bytes)
-                clients[1].send(msg1Bytes)
-                break
+                
             elif data.startswith("Move"):
                 print("Move received from client: ", player_index)
                 player_index = 1 - player_index
