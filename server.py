@@ -131,8 +131,9 @@ try:
                 else:
                     if comnpute_result == 2:
                         print("En passant move")
-                        chessBoard.boardArray[chessBoard.en_passant[0]][chessBoard.en_passant[1]] = " "
-                        chessBoard.en_passant = None
+                        for i in range(64):
+                            if "*" in chessBoard.boardArray[i//8][i%8]:
+                                chessBoard.boardArray[i//8][i%8] = " "
                     chessBoard.changePerspective(move)
                     chessBoard.round += 1
                     serialized_board = pickle.dumps(chessBoard)

@@ -141,9 +141,9 @@ def run_client():
         print(f"An error occurred: {e}")
     finally:
         time_module.sleep(1)
-        pygame.quit()
         socketObject.close()
         print("socket closed")
+        pygame.quit()
 
 # Run two clients in separate threads
 thread1 = threading.Thread(target=run_client)
