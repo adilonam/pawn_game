@@ -7,6 +7,7 @@ class ChessBoard:
         self.round = 0
         self.enpassant = False
         self.enpassantCol = None
+        time = 0
 
     def computeMove(self, move , playerColor):
         """
@@ -25,18 +26,18 @@ class ChessBoard:
         if start_col != end_col:
             # Authorize diagonal move if opponent pawn is in the diagonal
             if abs(start_col - end_col) == 1 and abs(start_row - end_row) == 1:
-                if playerColor == "W" and self.boardArray[end_row][end_col] == "B":
+                if playerColor == "W" and self.boardArray[end_row][end_col][0] == "B":
                     return True  # Valid capture move for white
-                elif playerColor == "B" and self.boardArray[end_row][end_col] == "W":
+                elif playerColor == "B" and self.boardArray[end_row][end_col][0] == "W":
                     return True  # Valid capture move for black
             return False
         else:
             # Pawn can move one or two squares forward from the starting position
             if playerColor == "B":
-                if (end_row - start_row == 2 and self.round == 0 and self.boardArray[end_row][end_col] == " ") or (end_row - start_row == 1 and self.boardArray[end_row][end_col] == " "):
+                if (end_row - start_row == 2 and self.boardArray[start_row][start_col] == "B0" and self.boardArray[end_row][end_col] == " ") or (end_row - start_row == 1 and self.boardArray[end_row][end_col] == " "):
                     return True  # Valid move for black
             elif playerColor == "W":
-                if (start_row - end_row == 2 and self.round == 0 and self.boardArray[end_row][end_col] == " ") or (start_row - end_row == 1 and self.boardArray[end_row][end_col] == " "):
+                if (start_row - end_row == 2 and self.boardArray[start_row][start_col] == "W0" and self.boardArray[end_row][end_col] == " ") or (start_row - end_row == 1 and self.boardArray[end_row][end_col] == " "):
                     return True  # Valid move for white
         
         return False  # Invalid move
@@ -75,6 +76,39 @@ class ChessBoard:
                             if self.computeMove(move, color):
                                 moves.append(move)
         return moves
+    
+    def setup(self, data):
+        pawn_num = 0
+        for i in range(64):
+            self.boardArray[i // 8][i % 8] = " "
+        for i in range(6, len(data), 4):
+            piece_color = data[i].strip()
+            piece_position = data[i + 1:i + 3].strip()
+            row = 8 - int(piece_position[1])
+            col = ord(piece_position[0]) - 97
+            # Debugging statements
+            if 0 <= row < 8 and 0 <= col < 8:
+                if piece_color == 'W':
+                    self.boardArray[row][col] = "W0"
+                else:
+                    self.boardArray[row][col] = "B0"
+                pawn_num += 1
+            else:
+                print(f"Invalid position: {piece_position}")
+        self.round_time = int(self.time / pawn_num)
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 class Node:
     def __init__(self, move=None, parent=None):

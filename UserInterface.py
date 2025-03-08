@@ -36,7 +36,7 @@ class UserInterface:
                 pygame.draw.rect(self.surface, square_color, pygame.Rect(self.label_gap + col * self.square_len, self.label_gap + row * self.square_len, self.square_len, self.square_len))
                 piece = self.chessboard.boardArray[row][col]
                 if piece != " ":
-                    self.surface.blit(self.images[piece], (self.label_gap + col * self.square_len, self.label_gap + row * self.square_len))
+                    self.surface.blit(self.images[piece[0]], (self.label_gap + col * self.square_len, self.label_gap + row * self.square_len))
                 # Draw row numbers on the left side
                 if col == 0:
                     row_label = font.render(str(8 - row), True, (0, 0, 0))
@@ -45,7 +45,7 @@ class UserInterface:
                 if row == 7:
                     col_label = font.render(chr(97 + col), True, (0, 0, 0))
                     self.surface.blit(col_label, (self.label_gap + col * self.square_len + self.square_len // 2, self.surface.get_height() - self.label_gap))
-        # Draw the countdown timer
+
         
         pygame.display.flip()
 
@@ -67,7 +67,7 @@ class UserInterface:
                     if not self.chessboard.computeMove(move , self.playerColor):
                         return False, ""
                     self.chessboard.boardArray[self.selected_pos[0]][self.selected_pos[1]] = " "
-                    self.chessboard.boardArray[row][col] = self.selected_piece
+                    self.chessboard.boardArray[row][col] = self.selected_piece[0] + "1"
                     self.selected_piece = None
                     self.selected_pos = None
                     self.chessboard.round += 1
@@ -80,11 +80,11 @@ class UserInterface:
         white_pawn_exists = False
         black_pawn_exists = False
         for i in range(64):
-            if self.chessboard.boardArray[i // 8][i % 8] == "W":
+            if "W" in self.chessboard.boardArray[i // 8][i % 8] :
                 white_pawn_exists = True
                 if i // 8 == 0:  # White pawn reaches the last row
                     return 'W'
-            elif self.chessboard.boardArray[i // 8][i % 8] == "B":
+            elif "B" in self.chessboard.boardArray[i // 8][i % 8] :
                 black_pawn_exists = True
                 if i // 8 == 7:  # Black pawn reaches the last row
                     return 'B'

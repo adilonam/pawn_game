@@ -9,7 +9,7 @@ import time as time_module
 
 
 port = int(sys.argv[1]) if len(sys.argv) > 1 else 9999
-game_mode = "player_vs_player"  # Default mode
+game_mode = "player_vs_player"  #  mode player_vs_agent , player_vs_player, agent_vs_agent
 
 def run_client():
     # Create a socket instance
@@ -44,26 +44,9 @@ def run_client():
                 UI = UserInterface(surface, Board)
                 UI.game_mode = game_mode
                 UI.socketObject = socketObject
-                pawn_num = 0
                 UI.firstgame = False
-                UI.time = time
-                for i in range(64):
-                    UI.chessboard.boardArray[i // 8][i % 8] = " "
-                for i in range(6, len(data), 4):
-                    piece_color = data[i].strip()
-                    piece_position = data[i + 1:i + 3].strip()
-                    row = 8 - int(piece_position[1])
-                    col = ord(piece_position[0]) - 97
-                    # Debugging statements
-                    if 0 <= row < 8 and 0 <= col < 8:
-                        if piece_color == 'W':
-                            UI.chessboard.boardArray[row][col] = "W"
-                        else:
-                            UI.chessboard.boardArray[row][col] = "B"
-                        pawn_num += 1
-                    else:
-                        print(f"Invalid position: {piece_position}")
-                UI.chessboard.round_time = int(time / pawn_num)
+                UI.chessboard.time = time
+                UI.chessboard.setup(data)
                 UI.drawComponent()
 
             elif data == "Begin":
