@@ -1,0 +1,22 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Python: Debug client.py",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/client.py",
+            "args": ["9991"],
+            "console": "integratedTerminal"
+        }
+        ,
+        {
+            "name": "Python: Debug server.py",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/server.py",
+            "args": ["9991"],
+            "console": "integratedTerminal"
+        }
+    ]
+}

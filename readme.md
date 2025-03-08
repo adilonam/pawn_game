@@ -36,7 +36,7 @@ On the server side, execute commands like this:
 
 ```bash
 Time 5
-Setup Wb4 Wa3 Wc2 Bg7 Wd4 Bg6 Be7
+Setup Wd3 Bc2 Be4 Wd6
 Begin
 ```
 

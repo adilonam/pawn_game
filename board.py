@@ -26,9 +26,9 @@ class ChessBoard:
         if start_col != end_col:
             # Authorize diagonal move if opponent pawn is in the diagonal
             if abs(start_col - end_col) == 1 and abs(start_row - end_row) == 1:
-                if playerColor == "W" and self.boardArray[end_row][end_col][0] == "B":
+                if playerColor == "W" and self.boardArray[end_row][end_col][0] == "B" and start_row > end_row:
                     return True  # Valid capture move for white
-                elif playerColor == "B" and self.boardArray[end_row][end_col][0] == "W":
+                elif playerColor == "B" and self.boardArray[end_row][end_col][0] == "W" and start_row < end_row:
                     return True  # Valid capture move for black
             return False
         else:
