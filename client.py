@@ -1,3 +1,4 @@
+import pickle
 import sys
 import pygame
 from board import ChessBoard
@@ -11,7 +12,10 @@ import time as time_module
 port = int(sys.argv[1]) if len(sys.argv) > 1 else 9999
 game_mode = "player_vs_player"  #  mode player_vs_agent , player_vs_player, agent_vs_agent
 
+
+
 def run_client():
+    UI = None
     # Create a socket instance
     socketObject = socket.socket()
 
@@ -29,26 +33,33 @@ def run_client():
             if socketObject._closed or socketObject is None:
                 break
             data = socketObject.recv(1024)
-            data = data.decode()
-
-            print(data)
+            try:
+                data = pickle.loads(data)
+                print("Received serialized board")
+                # Update the UI with the received board
+                if UI is None:
+                    surface = pygame.display.set_mode([600, 600], 0, 0)
+                    pygame.display.set_caption('Pawn Game')
+                    UI = UserInterface(surface, data)
+                    UI.game_mode = game_mode
+                    UI.socketObject = socketObject
+                    UI.firstgame = False
+                    UI.chessboard = data
+                    UI.drawComponent()
+                else:
+                    UI.chessboard = data
+                    UI.drawComponent()
+                continue
+            except pickle.UnpicklingError:
+                data = data.decode()
+                print(data)
 
             if data.startswith("Time"):
-                time = int(data[4:]) * 60  # Convert minutes to seconds
-                print(f"Time: {time}")
+                print(f"Time set")
             # Setup Wb4 Wa3 Wc2 Bg7 Wd4 Bg6 Be7
             elif data.startswith("Setup"):
-                surface = pygame.display.set_mode([600, 600], 0, 0)
-                pygame.display.set_caption('Pawn Game')
-                Board = ChessBoard()
-                UI = UserInterface(surface, Board)
-                UI.game_mode = game_mode
-                UI.socketObject = socketObject
-                UI.firstgame = False
-                UI.chessboard.time = time
-                UI.chessboard.setup(data)
-                UI.drawComponent()
-
+                print("Setting up the board")
+                
             elif data == "Begin":
                 print("Game started")
 
@@ -62,21 +73,12 @@ def run_client():
                 UI.playerColor = "B"
                 UI.drawComponent()
 
-            elif data.startswith("Move"):
-                move = data.split(" ")[1]
-                UI.chessboard.changePerspective(move)
-                UI.drawComponent()
+
 
             elif data == "Your turn":
                 if UI.game_mode == "player_vs_player":
                     UI.drawComponent()
-                    movement,flag  = UI.clientMove()
-                    if flag == "W" or flag == "B":
-                        msg = f"Win {flag}"
-                    else:
-                        msg = f"Move {movement} {UI.playerColor}"
-                    msg = msg.encode()
-                    socketObject.send(msg)
+                    movement  = UI.clientMove()
                 elif UI.game_mode == "player_vs_agent":
                     UI.drawComponent()
                     if UI.playerColor == "W":
@@ -124,15 +126,16 @@ def run_client():
                 break
 
             elif data == "White's turn" or data == "Black's turn":
-                print("ok")
+                pass
 
             elif data == "Connected to the server":
-                print("OK")
+                pass
 
             elif data == "exit":
                 print("Connection closed")
                 running = False
                 break
+            
 
 
 

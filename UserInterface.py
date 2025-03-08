@@ -1,3 +1,4 @@
+import pickle
 import pygame
 import time as time_module
 class UserInterface:
@@ -49,8 +50,9 @@ class UserInterface:
         
         pygame.display.flip()
 
-    def handle_event(self, event):
-        
+    
+    
+    def handle_move(self, event):
         if event.type == pygame.MOUSEBUTTONDOWN:
             x, y = event.pos
             col = (x - self.label_gap) // self.square_len
@@ -60,40 +62,24 @@ class UserInterface:
                     print(f"Selected piece: {self.chessboard.boardArray[row][col]}")
                     self.selected_piece = self.chessboard.boardArray[row][col]
                     self.selected_pos = (row, col)
-                if self.selected_piece:
+                if self.selected_piece and self.selected_pos != (row, col):
                     move_from = chr(97 + self.selected_pos[1]) + str(8 - self.selected_pos[0])
                     move_to = chr(97 + col) + str(8 - row)
-                    move = f"{move_from}{move_to}"
-                    if not self.chessboard.computeMove(move , self.playerColor):
-                        return False, ""
-                    self.chessboard.boardArray[self.selected_pos[0]][self.selected_pos[1]] = " "
-                    self.chessboard.boardArray[row][col] = self.selected_piece[0] + "1"
-                    self.selected_piece = None
-                    self.selected_pos = None
-                    self.chessboard.round += 1
-                    self.drawComponent()
-                    return True, f"{move_from}{move_to}"
-                
-        return False, ""
-        
-    def check_win_loss(self):
-        white_pawn_exists = False
-        black_pawn_exists = False
-        for i in range(64):
-            if "W" in self.chessboard.boardArray[i // 8][i % 8] :
-                white_pawn_exists = True
-                if i // 8 == 0:  # White pawn reaches the last row
-                    return 'W'
-            elif "B" in self.chessboard.boardArray[i // 8][i % 8] :
-                black_pawn_exists = True
-                if i // 8 == 7:  # Black pawn reaches the last row
-                    return 'B'
-        if not white_pawn_exists:
-            return 'B'
-        if not black_pawn_exists:
-            return 'W'
-        return None
+                    move = f"Move {move_from}{move_to}"
+                    self.socketObject.send(move.encode())
+                    resp = self.socketObject.recv(1024)
 
+                    try:
+                        data = pickle.loads(resp)
+                        print("Received serialized board")
+                        self.chessboard = data
+                        self.drawComponent()
+                        return True, f"{move_from}{move_to}"
+                    except pickle.UnpicklingError:
+                        data = data.decode()
+                        print(data)
+                        return False, ""
+        return False, ""
     def clientMove(self):
         font = pygame.font.SysFont(None, 24)
         self.start_time = time_module.time()  # Reset the timer to self.round_time
@@ -104,7 +90,7 @@ class UserInterface:
                     pygame.quit()
                     self.socketObject.close()
                     break
-                is_moved, movement = self.handle_event(event)
+                is_moved, movement = self.handle_move(event)
                 
                 elapsed_time = time_module.time() - self.start_time                
                 remaining_time = max(0, self.chessboard.round_time - int(elapsed_time))
@@ -118,5 +104,5 @@ class UserInterface:
                 pygame.display.flip()
                 if remaining_time == 0:
                     return "", "B" if self.playerColor == "W" else "W"
-        flag = self.check_win_loss()
-        return movement, flag
+        # flag = self.check_win_loss()
+        return movement

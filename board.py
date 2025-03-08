@@ -5,11 +5,11 @@ class ChessBoard:
         self.boardArray = [[" " for _ in range(8)] for _ in range(8)]
         self.round_time = 0
         self.round = 0
+        self.time = 0
         self.enpassant = False
         self.enpassantCol = None
-        time = 0
 
-    def computeMove(self, move , playerColor):
+    def computeMove(self, move , player_color):
         """
         Validates if the given move is a legal pawn move.
         :param move: str, chess move in format like 'h2h4'
@@ -17,30 +17,39 @@ class ChessBoard:
         """
         move = move.lower().strip()  # Convert to lowercase for case-insensitive comparison
         if len(move) != 4:
-            return False  # Invalid move format
+            return 0  # Invalid move format
         
         start, end = move[:2], move[2:]
         start_col, start_row = ord(start[0]) - 97, 8 - int(start[1])
         end_col, end_row = ord(end[0]) - 97, 8- int(end[1])
+        # Ensure the start and end positions are within the board
+        if not (0 <= start_col < 8 and 0 <= start_row < 8 and 0 <= end_col < 8 and 0 <= end_row < 8):
+            return 0
+        # Ensure the start position contains the player's pawn
+        if self.boardArray[start_row][start_col] == " " or player_color not in self.boardArray[start_row][start_col]:
+            return 0
         # Ensure the column remains the same (no sideways movement for pawns)
         if start_col != end_col:
+            # Check for en passant move
+            if player_color == "W" and "*" in self.boardArray[start_row][start_col+1]:
+                return 2
             # Authorize diagonal move if opponent pawn is in the diagonal
             if abs(start_col - end_col) == 1 and abs(start_row - end_row) == 1:
-                if playerColor == "W" and self.boardArray[end_row][end_col][0] == "B" and start_row > end_row:
-                    return True  # Valid capture move for white
-                elif playerColor == "B" and self.boardArray[end_row][end_col][0] == "W" and start_row < end_row:
-                    return True  # Valid capture move for black
-            return False
+                if player_color == "W" and self.boardArray[end_row][end_col][0] == "B" and start_row > end_row:
+                    return 1  # Valid capture move for white
+                elif player_color == "B" and self.boardArray[end_row][end_col][0] == "W" and start_row < end_row:
+                    return 1  # Valid capture move for black
+            return 0
         else:
             # Pawn can move one or two squares forward from the starting position
-            if playerColor == "B":
+            if player_color == "B":
                 if (end_row - start_row == 2 and self.boardArray[start_row][start_col] == "B0" and self.boardArray[end_row][end_col] == " ") or (end_row - start_row == 1 and self.boardArray[end_row][end_col] == " "):
-                    return True  # Valid move for black
-            elif playerColor == "W":
+                    return 1  # Valid move for black
+            elif player_color == "W":
                 if (start_row - end_row == 2 and self.boardArray[start_row][start_col] == "W0" and self.boardArray[end_row][end_col] == " ") or (start_row - end_row == 1 and self.boardArray[end_row][end_col] == " "):
-                    return True  # Valid move for white
+                    return 1  # Valid move for white
         
-        return False  # Invalid move
+        return 0  # Invalid move
 
     def changePerspective(self, move):
         # Compute the move on the board
@@ -51,7 +60,7 @@ class ChessBoard:
 
         piece = self.boardArray[start_row][start_col]
         self.boardArray[start_row][start_col] = " "
-        self.boardArray[end_row][end_col] = piece
+        self.boardArray[end_row][end_col] = piece[0] + "1"  
     
     def ai_move(self, playerColor):
         possible_moves = self.generate_moves(self.boardArray, playerColor)
@@ -76,6 +85,24 @@ class ChessBoard:
                             if self.computeMove(move, color):
                                 moves.append(move)
         return moves
+    
+    def check_win_loss(self):
+        white_pawn_exists = False
+        black_pawn_exists = False
+        for i in range(64):
+            if "W" in self.boardArray[i // 8][i % 8] :
+                white_pawn_exists = True
+                if i // 8 == 0:  # White pawn reaches the last row
+                    return 'W'
+            elif "B" in self.boardArray[i // 8][i % 8] :
+                black_pawn_exists = True
+                if i // 8 == 7:  # Black pawn reaches the last row
+                    return 'B'
+        if not white_pawn_exists:
+            return 'B'
+        if not black_pawn_exists:
+            return 'W'
+        return "0"
     
     def setup(self, data):
         pawn_num = 0

@@ -2,6 +2,8 @@ import socket
 import time as time_module
 import signal
 import sys
+import pickle
+from board import ChessBoard
 
 clients = []
 # Create a server socket
@@ -39,6 +41,7 @@ def signal_handler(sig, frame):
 signal.signal(signal.SIGINT, signal_handler)
 
 try:
+    chessBoard = ChessBoard()
     # wait for the two agents to connect
     (clientConnection, clientAddress) = serverSocket.accept()
     count = count + 1
@@ -55,6 +58,7 @@ try:
     clients[1].send(msg)
     # send Time x to clients
     time = input()
+    chessBoard.time = int(time[4:]) * 60
     time = str.encode(time)
     clients[0].send(time)
     clients[1].send(time)
@@ -62,14 +66,21 @@ try:
 
     # Classic for normal board, SETUP (ends with either BLACK/WHITE) otherwise
     msg = input()
+    chessBoard.setup(msg)
     msg = str.encode(msg)
     clients[0].send(msg)
     clients[1].send(msg)
 
     # send Begin to clients
     msg = input()
+    serialized_board = pickle.dumps(chessBoard)
+    clients[0].send(serialized_board)
+    clients[1].send(serialized_board)
+    time_module.sleep(1)
+
     msg = str.encode("White")
     clients[0].send(msg)
+    # Serialize chessBoard and send it to clients[0]
     msg = str.encode("Black")
     clients[1].send(msg)
 
@@ -108,7 +119,31 @@ try:
                 
             elif data.startswith("Move"):
                 print("Move received from client: ", player_index)
-                player_index = 1 - player_index
+                move = data[5:]
+                print(f"Move: {move}")
+                player_color = "W" if player_index == 0 else "B"
+                comnpute_result = chessBoard.computeMove(move, player_color)
+
+                print(f"Compute result: {comnpute_result}")
+                if comnpute_result == 0:
+                    print("Invalid move")
+                    clients[player_index].send(str.encode("Invalid move"))
+                else:
+                    chessBoard.changePerspective(move)
+                    serialized_board = pickle.dumps(chessBoard)
+                    clients[0].send(serialized_board)
+                    clients[1].send(serialized_board)
+                    chessBoard.round += 1
+                    win_loss = chessBoard.check_win_loss()
+                    if win_loss != "0":
+                        data = f"Win {win_loss}"
+                        print(f"{data}")
+                        for client in clients:
+                            client.send(str.encode(data))
+                        break
+                    player_index = 1 - player_index
+
+                
                 clients[player_index].send(str.encode(data))
 except Exception as e:
     print(f"An error occurred: {e}")
