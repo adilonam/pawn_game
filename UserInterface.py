@@ -76,7 +76,7 @@ class UserInterface:
                         self.drawComponent()
                         return True, f"{move_from}{move_to}"
                     except pickle.UnpicklingError:
-                        data = data.decode()
+                        data = resp.decode()
                         print(data)
                         return False, ""
         return False, ""
@@ -101,7 +101,8 @@ class UserInterface:
                 pygame.draw.rect(self.surface, self.dark_square_color, timer_rect)
                 
                 self.surface.blit(timer_label, (self.surface.get_width() - 150, 10))
-                pygame.display.flip()
+                if remaining_time % 5 == 0:
+                    pygame.display.flip()
                 if remaining_time == 0:
                     return "", "B" if self.playerColor == "W" else "W"
         # flag = self.check_win_loss()
