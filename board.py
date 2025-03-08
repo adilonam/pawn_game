@@ -31,7 +31,9 @@ class ChessBoard:
         # Ensure the column remains the same (no sideways movement for pawns)
         if start_col != end_col:
             # Check for en passant move
-            if player_color == "W" and "*" in self.boardArray[start_row][start_col+1]:
+            if self.en_passant and player_color == "W" and start_row == self.en_passant[0]  and end_col == self.en_passant[1]:
+                return 2
+            elif self.en_passant and player_color == "B" and start_row == self.en_passant[0]  and end_col == self.en_passant[1]:
                 return 2
             # Authorize diagonal move if opponent pawn is in the diagonal
             if abs(start_col - end_col) == 1 and abs(start_row - end_row) == 1:
@@ -57,7 +59,10 @@ class ChessBoard:
         start_row = 8 - int(move[1])
         end_col = ord(move[2]) - ord('a')
         end_row = 8 - int(move[3])
-
+        self.en_passant = None
+        # Check for en passant move
+        if abs(start_row - end_row) == 2:
+            self.en_passant = (end_row  ,  end_col)
         piece = self.boardArray[start_row][start_col]
         self.boardArray[start_row][start_col] = " "
         self.boardArray[end_row][end_col] = piece[0] + "1"  

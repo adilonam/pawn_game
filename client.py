@@ -121,8 +121,6 @@ def run_client():
                     print("White player won")
                 else:
                     print("Black player won")
-                msg = str.encode("exit")
-                socketObject.send(msg)
                 break
 
             elif data == "White's turn" or data == "Black's turn":
@@ -142,9 +140,10 @@ def run_client():
     except Exception as e:
         print(f"An error occurred: {e}")
     finally:
+        time_module.sleep(1)
         pygame.quit()
         socketObject.close()
-        exit()
+        print("socket closed")
 
 # Run two clients in separate threads
 thread1 = threading.Thread(target=run_client)

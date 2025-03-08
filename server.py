@@ -111,11 +111,11 @@ try:
                 print("Connection closed")
                 break
 
-            elif data.startswith("Win"):
-                print("Win received from client: ", player_index)
-                for client in clients:
-                    client.send(str.encode(data))
-                break
+            # elif data.startswith("Win"):
+            #     print("Win received from client: ", player_index)
+            #     for client in clients:
+            #         client.send(str.encode(data))
+            #     break
                 
             elif data.startswith("Move"):
                 print("Move received from client: ", player_index)
@@ -129,11 +129,15 @@ try:
                     print("Invalid move")
                     clients[player_index].send(str.encode("Invalid move"))
                 else:
+                    if comnpute_result == 2:
+                        print("En passant move")
+                        chessBoard.boardArray[chessBoard.en_passant[0]][chessBoard.en_passant[1]] = " "
+                        chessBoard.en_passant = None
                     chessBoard.changePerspective(move)
+                    chessBoard.round += 1
                     serialized_board = pickle.dumps(chessBoard)
                     clients[0].send(serialized_board)
                     clients[1].send(serialized_board)
-                    chessBoard.round += 1
                     win_loss = chessBoard.check_win_loss()
                     if win_loss != "0":
                         data = f"Win {win_loss}"
@@ -143,8 +147,6 @@ try:
                         break
                     player_index = 1 - player_index
 
-                
-                clients[player_index].send(str.encode(data))
 except Exception as e:
     print(f"An error occurred: {e}")
 finally:
