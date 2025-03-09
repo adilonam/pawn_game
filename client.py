@@ -128,11 +128,7 @@ def run_client():
         pygame.quit()
 
 # # Run two clients in separate threads
-thread1 = threading.Thread(target=run_client)
-thread2 = threading.Thread(target=run_client)
-
-thread1.start()
-thread2.start()
+run_client()
 
 
 
