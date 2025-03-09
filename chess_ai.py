@@ -72,7 +72,9 @@ def get_all_possible_moves(board, player_color):
                     moves.append(((i, j), (i + direction, j)))
                     
                     # Initial two-step move
-                    if '0' in board[i][j] and 0 <= i + 2 * direction < 8 and board[i + 2 * direction][j] == ' ':
+                    if player_color == 'W' and i == 6 and 0 <= i + 2 * direction < 8 and board[i + 2 * direction][j] == ' ':
+                        moves.append(((i, j), (i + 2 * direction, j)))
+                    elif player_color == 'B' and i == 1 and 0 <= i + 2 * direction < 8 and board[i + 2 * direction][j] == ' ':
                         moves.append(((i, j), (i + 2 * direction, j)))
                 
                 # Capturing moves
@@ -83,7 +85,7 @@ def get_all_possible_moves(board, player_color):
 
                         # En passant check
                         if '*' in board[i][j + dj]:  # Adjacent pawn has *
-                            if board[i][j + dj] == f"{opponent_color}1*":  # Check if it's an opponent's pawn
+                            if board[i][j + dj] == f"{opponent_color}*":  # Check if it's an opponent's pawn
                                 moves.append(((i, j), (i + direction, j + dj)))  # En passant move
 
     return moves
@@ -117,15 +119,15 @@ def position_to_chess_notation(position):
 def main():
     board = [
         [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
-        [' ', ' ', ' ', ' ', 'B1', ' ', ' ', ' '],
-        [' ', ' ', ' ', ' ', ' ', ' ', ' ', 'W0'],
         [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
-        [' ', 'W1*', 'B1', ' ', ' ', ' ', ' ', ' '],
+        [' ', ' ', ' ', ' ', ' ', ' ', ' ', 'W'],
+        [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
+        [' ', 'W', 'B', ' ', ' ', ' ', ' ', ' '],
         [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
         [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
         [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ']
     ]
-    player_color = 'B'
+    player_color = 'W'
     best_move = get_best_move(board, player_color)
     if best_move:
         start, end = best_move
