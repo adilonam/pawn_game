@@ -104,18 +104,14 @@ try:
         if (data != b''):
             data = data.decode()
             if data == "exit":
-                msg1Bytes = str.encode("exit")
+                msg1Bytes = str.encode("exit successfully")
                 clients[0].send(msg1Bytes)
                 clients[1].send(msg1Bytes)
                 print("agent wants to end the game.")
                 print("Connection closed")
                 break
 
-            # elif data.startswith("Win"):
-            #     print("Win received from client: ", player_index)
-            #     for client in clients:
-            #         client.send(str.encode(data))
-            #     break
+            
                 
             elif data.startswith("Move"):
                 print("Move received from client: ", player_index)

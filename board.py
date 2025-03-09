@@ -69,29 +69,9 @@ class ChessBoard:
         self.boardArray[start_row][start_col] = " "
         self.boardArray[end_row][end_col] = piece[0] + en_passant
     
-    def ai_move(self, playerColor):
-        possible_moves = self.generate_moves(self.boardArray, playerColor)
-        if possible_moves:
-            return random.choice(possible_moves)
-        return None
 
-    def generate_moves(self, board, color):
-        # Generate all possible moves for the given color
-        moves = []
-        for row in range(8):
-            for col in range(8):
-                if (color == "W" and board[row][col] == "W") or (color == "B" and board[row][col] == "B"):
-                    if color == "W":
-                        directions = [(-1, 0), (-1, 0), (-1, -1), (-1, 1)]
-                    else:
-                        directions = [(1, 0), (1, 0), (1, -1), (1, 1)]
-                    for d_row, d_col in directions:
-                        new_row, new_col = row + d_row, col + d_col
-                        if 0 <= new_row < 8 and 0 <= new_col < 8:
-                            move = f"{chr(col + 97)}{8 - row}{chr(new_col + 97)}{8 - new_row}"
-                            if self.computeMove(move, color):
-                                moves.append(move)
-        return moves
+
+
     
     def check_win_loss(self):
         white_pawn_exists = False

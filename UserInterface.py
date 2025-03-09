@@ -1,6 +1,8 @@
 import pickle
 import pygame
 import time as time_module
+
+from chess_ai import ChessAI
 class UserInterface:
     def __init__(self, surface, chessboard):
         self.surface = surface
@@ -80,6 +82,8 @@ class UserInterface:
                         print(data)
                         return False, ""
         return False, ""
+    
+
     def clientMove(self):
         font = pygame.font.SysFont(None, 24)
         self.start_time = time_module.time()  # Reset the timer to self.round_time
@@ -94,16 +98,34 @@ class UserInterface:
                 
                 elapsed_time = time_module.time() - self.start_time                
                 remaining_time = max(0, self.chessboard.round_time - int(elapsed_time))
-                timer_label = font.render(f'Time left: {remaining_time}s', True, (0, 0, 0))
-                
-                # Clear the previous timer label by redrawing the background rectangle
-                timer_rect = pygame.Rect(self.surface.get_width() - 150, 10, 140, 30)
-                pygame.draw.rect(self.surface, self.dark_square_color, timer_rect)
-                
-                self.surface.blit(timer_label, (self.surface.get_width() - 150, 10))
+               
                 if remaining_time % 5 == 0:
-                    pygame.display.flip()
+                    print(f"Remaining time: {remaining_time} seconds")
                 if remaining_time == 0:
-                    return "", "B" if self.playerColor == "W" else "W"
-        # flag = self.check_win_loss()
+                    return ""
         return movement
+    
+    def ai_move(self):
+        model = ChessAI()
+        best_move = model.get_best_move(self.chessboard.boardArray, self.playerColor)
+        if best_move is None:
+            return ""
+        start, end = best_move
+        best_move_chess_notation = f"{model.position_to_chess_notation(start)}{model.position_to_chess_notation(end)}"
+        print(f"Best move: {best_move_chess_notation}")
+        
+
+        move = f"Move {best_move_chess_notation}"
+        self.socketObject.send(move.encode())
+        resp = self.socketObject.recv(1024)
+
+        try:
+            data = pickle.loads(resp)
+            print("Received serialized board")
+            self.chessboard = data
+            self.drawComponent()
+            return best_move_chess_notation
+        except pickle.UnpicklingError:
+            data = resp.decode()
+            print(data)
+            return ""
