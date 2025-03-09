@@ -45,9 +45,17 @@ def evaluate_board(board, player_color):
             elif cell.strip() and player_color not in cell:
                 score -= 1
     if any('W' in cell for cell in board[0]):
-        score += 1000 if player_color == 'W' else -1000
+        score += 100000 if player_color == 'W' else -100000
     if any('B' in cell for cell in board[7]):
-        score += 1000 if player_color == 'B' else -1000
+        score +=  100000 if player_color == 'B' else - 100000
+    # Prioritize en passant moves
+    for i in range(8):
+        for j in range(8):
+            # Reward pawns closer to the opponent's last row
+            if player_color == 'W' and 'W' in board[i][j]:
+                score += math.exp((7 - i) )
+            elif player_color == 'B' and 'B' in board[i][j]:
+                score +=  math.exp(i)
     return score
 
 def get_all_possible_moves(board, player_color):
@@ -62,6 +70,10 @@ def get_all_possible_moves(board, player_color):
                 # Normal move forward
                 if 0 <= i + direction < 8 and board[i + direction][j] == ' ':
                     moves.append(((i, j), (i + direction, j)))
+                    
+                    # Initial two-step move
+                    if '0' in board[i][j] and 0 <= i + 2 * direction < 8 and board[i + 2 * direction][j] == ' ':
+                        moves.append(((i, j), (i + 2 * direction, j)))
                 
                 # Capturing moves
                 for dj in [-1, 1]:  # Check both diagonals
@@ -76,10 +88,13 @@ def get_all_possible_moves(board, player_color):
 
     return moves
 
-
 def make_move(board, move):
     new_board = [row[:] for row in board]
     start, end = move
+    
+    if '*' in new_board[start[0]][end[1]]  and new_board[start[0]][end[1]][0] != new_board[start[0]][start[1]][0]:
+        new_board[start[0]][end[1]] = ' '
+
     new_board[end[0]][end[1]] = new_board[start[0]][start[1]]
     new_board[start[0]][start[1]] = ' '
     return new_board
@@ -102,15 +117,15 @@ def position_to_chess_notation(position):
 def main():
     board = [
         [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
-        [' ', ' ', ' ', 'B1', ' ', ' ', ' ', ' '],
         [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
+        [' ', ' ', ' ', ' ', ' ', ' ', ' ', 'W0'],
         [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
-        [' ', 'B1', ' ', ' ', ' ', ' ', ' ', ' '],
-        ['W1', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
-        [' ', ' ', ' ', ' ', ' ', ' ', ' ', 'W1'],
+        [' ', 'W1*', 'B1', ' ', ' ', ' ', ' ', ' '],
+        [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
+        [' ', ' ', ' ', ' ', 'B0', ' ', ' ', ' '],
         [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ']
     ]
-    player_color = 'W'
+    player_color = 'B'
     best_move = get_best_move(board, player_color)
     if best_move:
         start, end = best_move
