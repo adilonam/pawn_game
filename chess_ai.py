@@ -45,9 +45,9 @@ def evaluate_board(board, player_color):
             elif cell.strip() and player_color not in cell:
                 score -= 1
     if any('W' in cell for cell in board[0]):
-        score += 100000 if player_color == 'W' else -100000
+        score += 10000 if player_color == 'W' else -10000
     if any('B' in cell for cell in board[7]):
-        score +=  100000 if player_color == 'B' else - 100000
+        score +=  10000 if player_color == 'B' else - 10000
     # Prioritize en passant moves
     for i in range(8):
         for j in range(8):
@@ -117,12 +117,12 @@ def position_to_chess_notation(position):
 def main():
     board = [
         [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
-        [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
+        [' ', ' ', ' ', ' ', 'B1', ' ', ' ', ' '],
         [' ', ' ', ' ', ' ', ' ', ' ', ' ', 'W0'],
         [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
         [' ', 'W1*', 'B1', ' ', ' ', ' ', ' ', ' '],
         [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
-        [' ', ' ', ' ', ' ', 'B0', ' ', ' ', ' '],
+        [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
         [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ']
     ]
     player_color = 'B'

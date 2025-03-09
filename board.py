@@ -31,9 +31,9 @@ class ChessBoard:
         # Ensure the column remains the same (no sideways movement for pawns)
         if start_col != end_col:
             # Check for en passant move
-            if  player_color == "W" and  self.boardArray[start_row][end_col] == "B1*" and start_row - end_row == 1:
+            if  player_color == "W" and  self.boardArray[start_row][end_col] == "B*" and start_row - end_row == 1 and self.boardArray[end_row][end_col] == " ":
                 return 2
-            elif  player_color == "B" and  self.boardArray[start_row][end_col] == "W1*" and end_row - start_row == 1:
+            elif  player_color == "B" and  self.boardArray[start_row][end_col] == "W*" and end_row - start_row == 1 and self.boardArray[end_row][end_col] == " ":
                 return 2
             # Authorize diagonal move if opponent pawn is in the diagonal
             if abs(start_col - end_col) == 1 and abs(start_row - end_row) == 1:
@@ -45,10 +45,10 @@ class ChessBoard:
         else:
             # Pawn can move one or two squares forward from the starting position
             if player_color == "B":
-                if (end_row - start_row == 2 and self.boardArray[start_row][start_col] == "B0" and self.boardArray[end_row][end_col] == " ") or (end_row - start_row == 1 and self.boardArray[end_row][end_col] == " "):
+                if (end_row - start_row == 2 and self.boardArray[start_row][start_col] == "B" and self.boardArray[end_row][end_col] == " " and start_row == 1 and  self.boardArray[end_row-1][end_col] == " ") or (end_row - start_row == 1 and self.boardArray[end_row][end_col] == " "):
                     return 1  # Valid move for black
             elif player_color == "W":
-                if (start_row - end_row == 2 and self.boardArray[start_row][start_col] == "W0" and self.boardArray[end_row][end_col] == " ") or (start_row - end_row == 1 and self.boardArray[end_row][end_col] == " "):
+                if (start_row - end_row == 2 and self.boardArray[start_row][start_col] == "W"  and self.boardArray[end_row][end_col] == " " and start_row == 6 and self.boardArray[end_row+1][end_col] == " ") or (start_row - end_row == 1 and self.boardArray[end_row][end_col] == " "):
                     return 1  # Valid move for white
         
         return 0  # Invalid move
@@ -67,7 +67,7 @@ class ChessBoard:
             en_passant = "*"
         piece = self.boardArray[start_row][start_col]
         self.boardArray[start_row][start_col] = " "
-        self.boardArray[end_row][end_col] = piece[0] + "1" + en_passant
+        self.boardArray[end_row][end_col] = piece[0] + en_passant
     
     def ai_move(self, playerColor):
         possible_moves = self.generate_moves(self.boardArray, playerColor)
@@ -123,9 +123,9 @@ class ChessBoard:
             # Debugging statements
             if 0 <= row < 8 and 0 <= col < 8:
                 if piece_color == 'W':
-                    self.boardArray[row][col] = "W0"
+                    self.boardArray[row][col] = "W"
                 else:
-                    self.boardArray[row][col] = "B0"
+                    self.boardArray[row][col] = "B"
                 pawn_num += 1
             else:
                 print(f"Invalid position: {piece_position}")
