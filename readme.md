@@ -35,7 +35,7 @@ The default port is 9999 if not specified.
 On the server side, execute commands like this:
 
 ```bash
-Time 5
+Time 50
 Setup Wd2 Bc7 Be7 We2 Wa2 Ba7
 Begin
 ```

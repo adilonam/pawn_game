@@ -100,7 +100,8 @@ class UserInterface:
                 remaining_time = max(0, self.chessboard.round_time - int(elapsed_time))
                
                 if remaining_time % 5 == 0:
-                    print(f"Remaining time: {remaining_time} seconds")
+                    self.drawComponent()
+                    # print(f"Remaining time: {remaining_time} seconds")
                 if remaining_time == 0:
                     return ""
         return movement

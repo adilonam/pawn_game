@@ -10,7 +10,7 @@ import time as time_module
 
 
 port = int(sys.argv[1]) if len(sys.argv) > 1 else 9999
-game_mode = "agent_vs_agent"  #  mode player_vs_agent , player_vs_player, agent_vs_agent
+game_mode = "player_vs_player"  #  mode player_vs_agent , player_vs_player, agent_vs_agent
 
 
 
@@ -76,14 +76,16 @@ def run_client():
 
 
             elif data == "Your turn":
+                time_module.sleep(1)
+                UI.drawComponent()
                 if UI.game_mode == "player_vs_player":
-                    UI.drawComponent()
                     movement  = UI.clientMove()
+                    UI.drawComponent()
                     if movement == "":
                         print(f"Player {UI.playerColor} Time out and loses the game")
                         socketObject.send("exit".encode())
                 elif UI.game_mode == "player_vs_agent":
-                    UI.drawComponent()
+                    
                     if UI.playerColor == "W":
                         movement = UI.clientMove()
                     else:
@@ -91,14 +93,14 @@ def run_client():
                         if movement == "":
                             print(f"AI {UI.playerColor} has no move and loses the game")
                             socketObject.send("exit".encode())
+                    UI.drawComponent()
                 elif UI.game_mode == "agent_vs_agent":
                     time_module.sleep(1)
-                    UI.drawComponent() 
                     movement = UI.ai_move()
                     if movement == "":
                         print(f"AI {UI.playerColor} has no move and loses the game")
                         socketObject.send("exit".encode())
-
+                    UI.drawComponent() 
             elif data.startswith("Win"):
                 if data[4:] == "W":
                     print("White player won")
